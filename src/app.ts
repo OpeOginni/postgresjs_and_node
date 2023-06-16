@@ -38,7 +38,7 @@ const login = async (req: Request, res: Response) => {
                 *
               FROM public.users
               WHERE 
-                users.email = ${email + '%'} 
+                users.email like ${email + '%'} 
             `
 
         // Return error if that user cant be found
@@ -71,7 +71,7 @@ const signup = async (req: Request, res: Response) => {
                *
              FROM public.users
              WHERE 
-               users.email = ${email + '%'}
+               users.email like ${email + '%'}
                  `
 
         // Check if that user already exists
