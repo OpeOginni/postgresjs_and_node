@@ -32,21 +32,25 @@ const login = async (req: Request, res: Response) => {
     const { email, password } = req.body;
 
     try {
-        // Get the user from the DataBase
+        // Get the user from the DataBase and prevent SQL Injection
         const user = await sql<user[]>`
-     SELECT
-      *
-    FROM public.users
-    WHERE 
-      users.email = ${email}
-        `
+              SELECT
+                *
+              FROM public.users
+              WHERE 
+                users.email = ${email + '%'} 
+            `
+
+        // Return error if that user cant be found
+        if (user.length === 0) {
+            return res.status(400).json({ success: false, message: "No user with that Email" })
+        }
 
         // We check if the password in the database is the same password that the user is inputing
         if (user[0].password === password)
             return res.status(200).json({ success: true, user: user, message: "Signed In Successfully...Welcome" })
         else {
             return res.status(400).json({ success: false, message: "Wrong Password" })
-
         }
     } catch (err) {
         return res.status(400).json({ success: false, message: "Something went wrong" })
@@ -67,7 +71,7 @@ const signup = async (req: Request, res: Response) => {
                *
              FROM public.users
              WHERE 
-               users.email = ${email}
+               users.email = ${email + '%'}
                  `
 
         // Check if that user already exists
